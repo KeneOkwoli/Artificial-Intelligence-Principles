@@ -6,6 +6,8 @@ import numpy
 
 ROWS_NUMBER = 6
 COLUMNS_NUMBER = 7
+Black = (0,0,0)
+Blue = (0,0,255)
 
 
 def DrawBoard():
@@ -59,30 +61,57 @@ turn = 0
 gameOver = False
 
 
-while not gameOver:
-    # Player 1 input
-    if turn == 0:
-        column = int(input("Player 1s choice: "))
-        if LocationValid(board, column):
-            row = NextRow(board, column)
-            DropToken(board, row, column, 1)
-            if Win(board,1):
-                print("Player 1 is the winner!")
-                gameOver = True
-                break
-    
-    # Player 2 input
-    else: 
-        column = int(input("Player 2s choice: "))
-        if LocationValid(board, column):
-            row = NextRow(board, column)
-            DropToken(board, row, column, 2)       
-            if Win(board,2):
-                print("Player 2 is the winner!")
-                gameOver = True
-                break             
 
-    FlipBoard(board)
-    turn +=1
-    turn = turn % 2
+pygame.init()
+square_size = 100
+Radius = int(square_size/2 -8)
+board_width = COLUMNS_NUMBER * square_size
+board_height = (ROWS_NUMBER + 1) * square_size
+size = (board_width,board_height)
+screen = pygame.display.set_mode(size)
+
+def visual_board(board):
+    for i in range(COLUMNS_NUMBER):
+        for j in range(ROWS_NUMBER + 1):
+            pygame.draw.rect(screen, Blue , (i*square_size , j*square_size + square_size, square_size, square_size) )
+            pygame.draw.circle(screen, Black, (int(i*square_size+square_size/2), int(j*square_size+square_size/2)),Radius)
+
+visual_board(board)
+pygame.display.update()
+
+while not gameOver:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            sys.exit()
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            print(event.pos)
+             # Player 1 input
+            if turn == 0:
+                x_pos = event.pos[0]
+                column = int(math.floor(x_pos/square_size))
+
+                if LocationValid(board, column):
+                    row = NextRow(board, column)
+                    DropToken(board, row, column, 1)
+                    if Win(board,1):
+                        print("Player 1 is the winner!")
+                        gameOver = True
+                        break
+            
+            # Player 2 input
+            else: 
+                x_pos = event.pos[0]
+                column = int(math.floor(x_pos/square_size))
+                if LocationValid(board, column):
+                    row = NextRow(board, column)
+                    DropToken(board, row, column, 2)       
+                    if Win(board,2):
+                        print("Player 2 is the winner!")
+                        gameOver = True
+                        break             
+
+            FlipBoard(board)
+            turn +=1
+            turn = turn % 2 
 
