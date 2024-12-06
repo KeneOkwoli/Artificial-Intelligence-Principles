@@ -116,25 +116,25 @@ while not gameOver:
                     if Win(board,1):
                         print("Player 1 is the winner!")
                         gameOver = True
+                    turn +=1
+                    turn = turn % 2 
                         
             
-            # Player 2 input
-            else: 
-                x_pos = event.pos[0]
-                column = int(math.floor(x_pos/square_size))
-                if LocationValid(board, column):
-                    row = NextRow(board, column)
-                    DropToken(board, row, column, 2)       
-                    if Win(board,2):
-                        print("Player 2 is the winner!")
-                        gameOver = True
+    # Player 2 input
+    if turn == 1 and not gameOver: 
+        column = random.randint(0, COLUMNS_NUMBER - 1)
+        if LocationValid(board, column):
+            row = NextRow(board, column)
+            DropToken(board, row, column, 2)       
+            if Win(board,2):
+                print("Player 2 is the winner!")
+                gameOver = True
                                     
-
             FlipBoard(board)
             visual_board(board)
             turn +=1
             turn = turn % 2 
 
-            if gameOver:
-                pygame.time.wait(3000)
+    if gameOver:
+        pygame.time.wait(3000)
 
