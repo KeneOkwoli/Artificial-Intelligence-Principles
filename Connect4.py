@@ -28,9 +28,9 @@ def LocationValid(board, column):
     return board[Rows_number - 1][column] == 0
 
 def NextRow(board,column):
-    for r in range(Rows_number):
-        if board[r][column] == 0:
-            return r
+    for row in range(Rows_number):
+        if board[row][column] == 0:
+            return row
         
 def Win(board, token):
 #checks horizontal for any wins
@@ -104,21 +104,49 @@ def Score(board,token):
 
 
 def IsTerminal(board):
-    return Win(board, player_token) or Win(board, agent_token) or len(LocationValid(board)) == 0
+    return Win(board, player_token) or Win(board, agent_token) or len(OptionalLocations(board)) == 0
 
 
 def MiniMax(board, depth, max_player):
-    locations = LocationValid(board) 
+    locations = OptionalLocations(board) 
     terminal_node = IsTerminal(board)
     if depth == 0 or terminal_node:
         if terminal_node:
             if Win(board, agent_token):
-                return 1000000
+                return (None, 1000000)
             elif Win(board, player_token):
-                return 5
-            else:
-                return 0
+                return (None, 5)
+            else: # no more valid moves available
+                return (None, 0)
+        else:
+            return (None, Score(board, agent_token))
         
+    if max_player:
+        value = -math.inf # negative infinity
+        best_column = random.choice(locations)
+        for column in locations:
+            row = NextRow(board, column)
+            board_copy = board.copy()
+            PlaceToken(board_copy, row, column, agent_token)
+            updated_score = MiniMax(board_copy, depth - 1, False)[1]
+            if updated_score > value:
+                value = updated_score
+                best_column = column
+        return best_column, value
+    else:
+        value = math.inf # positive infinity
+        best_column = random.choice(locations)
+        for column in locations:
+            row = NextRow(board, column)
+            board_copy = board.copy()
+            PlaceToken(board_copy, row, column, player_token)
+            updated_score = MiniMax(board_copy, depth - 1, True)[1]
+            if updated_score < value:
+                value = updated_score
+                best_column = column
+        return best_column, value
+        
+
 def OptionalLocations(board):
     location = []
     for column in range(Column_number):
@@ -132,9 +160,9 @@ def OptimalMove(board,token):
     best_score = -1000
     for column in locations:
         row = NextRow(board, column)
-        temp_board = board.copy()
-        PlaceToken(temp_board, row, column,token)
-        points = Score(temp_board, token)
+        board_copy = board.copy()
+        PlaceToken(board_copy, row, column,token)
+        points = Score(board_copy, token)
         if points > best_score:
             best_score = points
             ideal_column = column
@@ -218,7 +246,8 @@ while not gameOver:
     # Player 2 input
     if turn == 1 and not gameOver: 
         #column = random.randint(0, COLUMNS_NUMBER - 1)
-        column = OptimalMove(board , 2)
+        #column = OptimalMove(board , 2)
+        column, minimax = MiniMax(board, 3, True)
         if LocationValid(board, column):
             FlipBoard(board)
             VisualBoard(board)
