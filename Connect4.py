@@ -100,8 +100,25 @@ def Score(board,token):
             set = [board[r+3-i][c+i] for i in range(set_length)]
             score += CheckBoard(set, token)
 
-    return score    
+    return score  
 
+
+def IsTerminal(board):
+    return Win(board, player_token) or Win(board, agent_token) or len(LocationValid(board)) == 0
+
+
+def MiniMax(board, depth, max_player):
+    locations = LocationValid(board) 
+    terminal_node = IsTerminal(board)
+    if depth == 0 or terminal_node:
+        if terminal_node:
+            if Win(board, agent_token):
+                return 1000000
+            elif Win(board, player_token):
+                return 5
+            else:
+                return 0
+        
 def OptionalLocations(board):
     location = []
     for column in range(Column_number):
