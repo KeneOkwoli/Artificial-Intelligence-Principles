@@ -10,13 +10,16 @@ Black = (0,0,0)
 Blue = (0,0,255)
 Yellow = (255,255,0)
 Red = (255,0,0)
+set_length = 4
+empty_slot = 0
+
 
 
 def DrawBoard():
     board = numpy.zeros((ROWS_NUMBER,COLUMNS_NUMBER))
     return board
 
-def DropToken(board, row, column, token):
+def PlaceToken(board, row, column, token):
     board[row][column] = token
 
 
@@ -53,13 +56,46 @@ def Win(board, token):
             if board[r][c] == token and board[r-1][c+1] == token and board[r-2][c+2] == token and board[r-3][c+3] == token:
                 return True            
 
+def Score(board,token):
+    score = 0
+    for r in range(ROWS_NUMBER):
+        r_array = [int(i) for i in list(board[r,:])]
+        for c in range(COLUMNS_NUMBER - 3):
+            set = r_array[c:c+set_length]
+            if set.count(token) == 4:
+                score += 100
+            elif set.count(token) == 3 and set.count(empty_slot) == 1:
+                score += 10
+    return score
+
+def OptionalLocations(board):
+    location = []
+    for column in range(COLUMNS_NUMBER):
+        if LocationValid(board, column):
+            location.append(column)
+    return location
+
+def OptimalMove(board,token):
+    locations = OptionalLocations(board)    
+    ideal_column = random.choice(locations)
+    best_score = 0
+    for column in locations:
+        row = NextRow(board, column)
+        temp_board = board.copy()
+        PlaceToken(temp_board, row, column,token)
+        points = Score(temp_board, token)
+        if points > best_score:
+            best_score = points
+            ideal_column = column
+    return ideal_column
+
 def FlipBoard(board):
     print(numpy.flip(board,0))
 
 
 board = DrawBoard()
 FlipBoard(board)
-turn = 0
+turn = random.randint(0,1)
 gameOver = False
 
 
@@ -90,7 +126,14 @@ def visual_board(board):
 visual_board(board)
 pygame.display.update()
 
+
+
 while not gameOver:
+    if turn == 0:
+        print("Your move")
+    else:
+        print("AI move")
+        
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
@@ -100,8 +143,7 @@ while not gameOver:
             x_pos = event.pos[0]
             if turn == 0:
                 pygame.draw.circle(screen,Yellow, (x_pos,int(square_size/2)) , Radius)
-            else:
-                pygame.draw.circle(screen,Red, (x_pos,int(square_size/2)) , Radius)
+
         pygame.display.update()
         if event.type == pygame.MOUSEBUTTONDOWN:
             print(event.pos)
@@ -112,20 +154,26 @@ while not gameOver:
 
                 if LocationValid(board, column):
                     row = NextRow(board, column)
-                    DropToken(board, row, column, 1)
+                    PlaceToken(board, row, column, 1)
                     if Win(board,1):
                         print("Player 1 is the winner!")
                         gameOver = True
                     turn +=1
                     turn = turn % 2 
+                    FlipBoard(board)
+                    visual_board(board)
                         
             
     # Player 2 input
     if turn == 1 and not gameOver: 
-        column = random.randint(0, COLUMNS_NUMBER - 1)
+        #column = random.randint(0, COLUMNS_NUMBER - 1)
+        column = OptimalMove(board , 2)
         if LocationValid(board, column):
+            FlipBoard(board)
+            visual_board(board)
+            pygame.time.wait(1000)
             row = NextRow(board, column)
-            DropToken(board, row, column, 2)       
+            PlaceToken(board, row, column, 2)       
             if Win(board,2):
                 print("Player 2 is the winner!")
                 gameOver = True
