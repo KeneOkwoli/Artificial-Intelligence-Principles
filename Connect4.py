@@ -1,3 +1,5 @@
+## Kenechukwu Okwoli - 23010818
+
 import random
 import pygame
 import sys
@@ -17,7 +19,7 @@ player_token = 1 # Value representing the player's token
 agent_token = 2 # Value representing the AI's token
 
 
- #Creates an empty Connect 4 board. Returns a 2D numpy array initialized to zeros.  
+ #Creates an empty Connect 4 board. Returns a 2D numpy array initialised to zeros.  
 def DrawBoard():       
     return numpy.zeros((Rows_number, Column_number))
 
@@ -59,7 +61,7 @@ def Win(board, token):
                 return True
     return False
 
-# Evaluates a set of 4 consecutive slots on the board and scores them based on their value.
+# Heuristic funtion - Evaluates a set of 4 consecutive slots on the board and scores them based on their value.
 def CheckBoard(set, token):
 # set: List of 4 values from the board
     score = 0
@@ -74,7 +76,7 @@ def CheckBoard(set, token):
         score -= 80
     return score
 
-#  Calculates the overall score of the board for a given token.
+# Heuristic funtion -  Calculates the overall score of the board for a given token.
 def Score(board, token):
     score = 0
     # Vertical
@@ -106,7 +108,7 @@ def IsTerminal(board):
     return Win(board, player_token) or Win(board, agent_token) or len(OptionalLocations(board)) == 0
 
 # Implements the MiniMax algorithm with alpha-beta pruning for decision-making.
-def MiniMax(board, depth, alpha, beta, max_player): #  max_player: True if it's the maximizing player's turn, False otherwise
+def MiniMax(board, depth, alpha, beta, max_player): #  max_player: True if it's the maximising player's turn, False otherwise
     locations = OptionalLocations(board)
     terminal_node = IsTerminal(board)
     if depth == 0 or terminal_node:
@@ -120,7 +122,7 @@ def MiniMax(board, depth, alpha, beta, max_player): #  max_player: True if it's 
         else:
             return None, Score(board, agent_token)
     if max_player:
-        value = -math.inf # Initialises the value to negative infinity for the maximizing player (AI).
+        value = -math.inf # Initialises the value to negative infinity for the maximising player (AI).
         best_column = random.choice(locations)
         for column in locations:
             row = NextRow(board, column)
